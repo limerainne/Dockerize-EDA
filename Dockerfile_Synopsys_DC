@@ -1,4 +1,4 @@
-FROM ubuntu:14.04 AS installer
+FROM ubuntu:18.04 AS installer
 ARG repo_sed=s#://archive.ubuntu.com#://kr.archive.ubuntu.com#g
 
 # 'cshell' is required to run the installer
@@ -30,19 +30,25 @@ RUN mkdir -p ${base_dir} \
 
 
 # NOTE using multi-stage image build; avoid installer package from included in the final image
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 ARG repo_sed=s#://archive.ubuntu.com#://kr.archive.ubuntu.com#g
 
 # install required library to run Synopsys tool and X11 library to show GUI
 RUN sed -i -e "${repo_sed}" /etc/apt/sources.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-    csh libxss1 libsm6 libice6 libxft2 libjpeg62 libtiff5 libmng2 libpng12-0 \
-    && apt-get install -y --no-install-recommends xorg \
+    csh libxss1 libsm6 libice6 libxft2 libjpeg62 libtiff5 libmng2 \
+    && apt-get install -y --no-install-recommends xserver-xorg-video-dummy xserver-xorg-input-void xserver-xorg-core xinit x11-xserver-utils \
+    && echo "deb http://security.ubuntu.com/ubuntu xenial-security main" >> /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get install -y -t xenial libpng12-0 \
     && rm -rf /var/lib/apt/lists/*
-# TODO find much lighter package rather than xorg; 'x11-apps' is not applicable
+# # using somewhat lighter X11 package rather than xorg; 'x11-apps' is not applicable
+# ref: https://git.devuan.org/dev1fanboy/Upgrade-Install-Devuan/wikis/minimal-xorg-install
+# # WORKAROUND install libpng12-0 package from Xenial removed from Bionic
+# ref: https://www.linuxuprising.com/2018/05/fix-libpng12-0-missing-in-ubuntu-1804.html
 
-# WORKAROUND link outdated library filename required from Synopsys tools
+# WORKAROUND link outdated library files required from Synopsys tools
 # WORKAROUND set default shell as Bash to avoid error from script included in the tool
 RUN ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.5 /usr/lib/x86_64-linux-gnu/libtiff.so.3 \
     && ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1 \
