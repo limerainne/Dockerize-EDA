@@ -1,4 +1,4 @@
-# NOTE hmm... VCS did not operates smoothly in native Ubuntu 17.04/10... OK for 16.04
+# TODO hmm... VCS did not operates smoothly in native Ubuntu 17.04/10... OK for 16.04
 
 FROM ubuntu:18.04 AS installer
 ARG repo_sed=s#://archive.ubuntu.com#://kr.archive.ubuntu.com#g
@@ -13,9 +13,9 @@ RUN sed -i -e "${repo_sed}" /etc/apt/sources.list \
 # TODO how to deduplicate below arguments declaration
 ARG base_dir=/usr/synopsys
 ARG tool=vcs
-ARG version=L-2016.06-SP2-3
+ARG version=N-2017.12
 
-ARG installer_version=v3.2
+ARG installer_version=v4.1
 
 
 # copy installer and installation package temporarily
@@ -31,7 +31,7 @@ RUN mkdir -p ${base_dir} \
     && rm -rf ${base_dir}/installer_${installer_version}
 
 
-# NOTE using multi-stage image build; avoid installer package from included in the final image
+# NOTE using multi-stage image build; avoid including installer package in the final image
 FROM ubuntu:18.04
 ARG repo_sed=s#://archive.ubuntu.com#://kr.archive.ubuntu.com#g
 
@@ -47,7 +47,7 @@ RUN sed -i -e "${repo_sed}" /etc/apt/sources.list \
     && rm -rf /var/lib/apt/lists/*
 # # using somewhat lighter X11 package rather than xorg; 'x11-apps' is not applicable
 # ref: https://git.devuan.org/dev1fanboy/Upgrade-Install-Devuan/wikis/minimal-xorg-install
-# # WORKAROUND install libpng12-0 package from Xenial removed from Bionic
+# # WORKAROUND install libpng12-0 package from Xenial, which is removed from Bionic
 # ref: https://www.linuxuprising.com/2018/05/fix-libpng12-0-missing-in-ubuntu-1804.html
 
 # WORKAROUND link outdated library filename required from Synopsys tools
@@ -59,7 +59,8 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.5 /usr/lib/x86_64-linux-gnu/libti
 # copy actual tool to be run in this image
 ARG base_dir=/usr/synopsys
 ARG tool=vcs
-ARG version=L-2016.06-SP2-3
+ARG version=N-2017.12
+
 
 
 # just copy installed package from intermediate image
