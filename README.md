@@ -2,11 +2,19 @@
 
 I don't think dockerizing EDA tools is somewhat useful or not, but here is the `Dockerfile`s for dockerizing popular EDA tools!
 
+## Tried packages
+ - Synosys
+   - Design Compiler (DC)
+   - IC Compiler (ICC)
+ - Cadence
+   - Incisive (NCSim)
+   - Virtuoso (IC)
+
 ## CAVEAT
-  - I failed to achieve X11 forwarding. In other words, with this image you cannot open GUI windows.
+  - X11 forwarding with host was not prepared. In other words, with this image you cannot open GUI windows out-of-the-box. (See [#3][i3])
   - Did not test uploading to "private" docker registry.
     - (you should not upload image containing commeiclal tool to public docker registry, of course ;-) )
-  - Intermediate image does not removed automatically. You have to remove by yourself for now.
+  - Intermediate image does not removed automatically, you have to remove by yourself for now. (see below)
   - How can we run docker container with unpriviledged permission?
     - [Singularity](https://www.sylabs.io) could be a solution, but currently I failed to use that tool.
 
@@ -24,19 +32,20 @@ I don't think dockerizing EDA tools is somewhat useful or not, but here is the `
   - Execute below command to create an image.  
 `$ sudo docker build -t <image_name>:<version> -f <Dockerfile> .`  
 `e.g. $ sudo docker build -t synopsys_dc:X-2020.4 -f Dockerfile_Synopsys_DC .`
-  - Remove intermediate image created during building an image.
+  - You can manually remove intermediate images created during building an image.
 ```bash
 $ sudo docker images    # find a tag of the intermediate image
 $ sudo docker rmi <image_tag_you_want_to_remove>
 ```
 
+## Launch a container
   - Example container launching command
-    - You should pass environment variable regarding your license server
+    - You should pass `LM_LICENSE_FILE` environment variable regarding your license server
 ```bash
 $ sudo docker run --rm -it -e LM_LICENSE_FILE="<port>@<license_server>" \
-                   -env="DISPLAY" \
                    <image_name> [<command>]
 ```
+  - To run a container with GUI (X11) enabled, see [#3][i3].
 
 ## Vendor specific requirements
 
@@ -72,3 +81,5 @@ $ sudo apt libxtst6:i386 libxext6:i386 libxi6:i386 ksh csh \
  - (Virtuoso) define below envvar regarding inside `<path/to/virtuoso>/share/oa/lib/`  
 `$ export OA_UNSUPPORTED_PLAT "linux_rhel50_gcc48x"`
 
+
+[i3]: https://github.com/limerainne/Dockerize-EDA/issues/3
