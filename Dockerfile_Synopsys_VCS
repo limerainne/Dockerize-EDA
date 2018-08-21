@@ -56,11 +56,13 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.5 /usr/lib/x86_64-linux-gnu/libti
     && ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1 \
     && update-alternatives --install /bin/sh sh /bin/bash 20
 
+# WORKAROUND Ubuntu 18.04 does not have terminfo files in /usr/share/terminfo/
+RUN cp -r /lib/terminfo/. /usr/share/terminfo/
+
 # copy actual tool to be run in this image
 ARG base_dir=/usr/synopsys
 ARG tool=vcs
 ARG version=N-2017.12
-
 
 
 # just copy installed package from intermediate image
