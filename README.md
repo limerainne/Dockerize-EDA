@@ -21,8 +21,8 @@ I don't think dockerizing EDA tools is somewhat useful or not, but here is the `
   - Copy (or bind mount) installer and installation package to the subdirectory
      - Refer to shell scripts for bind-mounting installation files from other path
   - modify dockerfile to match with your tool version, your requirements, etc.
-  - Execute below command to create an image.
-`$ sudo docker build -t <image_name>:<version> -f <Dockerfile> .`
+  - Execute below command to create an image.  
+`$ sudo docker build -t <image_name>:<version> -f <Dockerfile> .`  
 `e.g. $ sudo docker build -t synopsys_dc:X-2020.4 -f Dockerfile_Synopsys_DC .`
   - Remove intermediate image created during building an image.
 ```bash
@@ -66,9 +66,9 @@ $ sudo dpkg --add-architecture i386
 $ sudo apt libxtst6:i386 libxext6:i386 libxi6:i386 ksh csh \
 ```
 
- - define below envvar to execute 64-bit binary
+ - define below envvar to execute 64-bit binary  
 `$ export CDS_AUTO_64BIT=ALL`
 
- - (Virtuoso) define below envvar regarding inside `<path/to/virtuoso>/share/oa/lib/`
+ - (Virtuoso) define below envvar regarding inside `<path/to/virtuoso>/share/oa/lib/`  
 `$ export OA_UNSUPPORTED_PLAT "linux_rhel50_gcc48x"`
 
