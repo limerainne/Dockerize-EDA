@@ -1,11 +1,13 @@
 # [WIP] Dockerize scripts for commercial EDA tools
 
-I don't think dockerizing EDA tools is somewhat useful or not, but here is the `Dockerfile`s for dockerizing popular EDA tools!
+I don't know which possibilities can bear from dockerizing EDA tools, but here is the `Dockerfile`s to dockerize popular EDA tools!
 
 ## Tried packages
  - Synosys
    - Design Compiler (DC)
    - IC Compiler (ICC)
+   - VCS (RTL Simulator)
+   - HSPICE
  - Cadence
    - Incisive (NCSim)
    - Virtuoso (IC)
@@ -16,7 +18,8 @@ I don't think dockerizing EDA tools is somewhat useful or not, but here is the `
     - (you should not upload image containing commeiclal tool to public docker registry, of course ;-) )
   - Intermediate image does not removed automatically, you have to remove by yourself for now. (see below)
   - How can we run docker container with unpriviledged permission?
-    - [Singularity](https://www.sylabs.io) could be a solution, but currently I failed to use that tool.
+    - Currently, there is nothing to drop root priviledge in `Dockerfile`s
+    - [Singularity](https://www.sylabs.io) could be a solution.
 
 ## Prerequisites
   - Docker 17.05+ (this script uses multi-stage build feature)
@@ -27,7 +30,7 @@ I don't think dockerizing EDA tools is somewhat useful or not, but here is the `
   
   - First, clone this repository to your workstation.
   - Copy (or bind mount) installer and installation package to the subdirectory
-     - Refer to shell scripts for bind-mounting installation files from other path
+     - Refer to shell scripts for bind-mounting installation files from other path. Bind mount was used only for avoiding copy installation package to working path
   - modify dockerfile to match with your tool version, your requirements, etc.
   - Execute below command to create an image.  
 `$ sudo docker build -t <image_name>:<version> -f <Dockerfile> .`  
@@ -39,8 +42,9 @@ $ sudo docker rmi <image_tag_you_want_to_remove>
 ```
 
 ## Launch a container
-  - Example container launching command
+  - Example command to run a container
     - You should pass `LM_LICENSE_FILE` environment variable regarding your license server
+    - Consider bind mount your user directory
 ```bash
 $ sudo docker run --rm -it -e LM_LICENSE_FILE="<port>@<license_server>" \
                    <image_name> [<command>]
@@ -58,8 +62,10 @@ $ sudo apt install csh libxss1 libsm6 libice6 libxft2 libjpeg62 libtiff5 libmng2
 $ sudo ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.5 /usr/lib/x86_64-linux-gnu/libtiff.so.3
 $ sudo ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1
 ```
+ - `HSPICE` requires `libxml2` also!
+
  - Ubuntu 18.04 requires additional treatments, because `libpng12-0` package was removed from that version
-   - manually download and install `libpng12-0` package, or add older source and install from that source like below:
+   - Manually download and install `libpng12-0` package, or add source of older releases and install package from that source like below:
 ```bash
 $ sudo 'echo "deb http://security.ubuntu.com/ubuntu xenial-security main" >> /etc/apt/sources.list'
 $ sudo apt update
