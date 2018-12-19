@@ -1,0 +1,14 @@
+--- pkgs/icv_calenv.aoj/pvt/calibre_host_info	2018-08-03 12:49:05.194652097 +0900
++++ pkgs/icv_calenv.aoj/pvt/calibre_host_info	2018-08-03 12:46:53.043041407 +0900
+@@ -68,4 +68,9 @@
+   echo $osflags | fgrep -wq avx2 2>/dev/null && OS_AVX2=avx2
+ fi
+ 
++# FIX: FORCE SET AS REDHAT 7.0
++# 'aoj' build = redhat 6.8+ & Intel AVX2
++# refer to: bin/calibre_vco
++OS_VENDOR=redhat
++OS_MAJOR_REV=7
++OS_MINOR_REV=0
++
+ test -n "$DAVER_DEBUG" && echo "HOST=`uname -n 2>/dev/null` TYPE=$OS_TYPE ARCH=$OS_ARCH VENDOR=$OS_VENDOR MAJOR_REV=$OS_MAJOR_REV MINOR_REV=$OS_MINOR_REV SSE=$OS_SSE SSE2=$OS_SSE2 SSE3=$OS_SSE3 AVX2=$OS_AVX2"
