@@ -1,25 +1,37 @@
 # [WIP] Dockerize scripts for commercial EDA tools
 
-I don't know which possibilities can bear from dockerizing EDA tools, but here is the `Dockerfile`s to dockerize popular EDA tools!
+Here is the `Dockerfile`s to dockerize popular [EDA (Electronic Design Automation)](https://en.wikipedia.org/wiki/Electronic_design_automation) tools!
 
-## Tried packages
+With docker images made from these `Dockerfiles`, we could do:
+ * Build/test your design on the cloud server (but here comes a license issue :) )
+ * Maintain tools with as many different version as you want without difficulties
+ * Provide tools for you or your peer's desktop computer regardless of which OS you are using
+ * [Continuous Integration (CI)](https://en.wikipedia.org/wiki/Continuous_integration) for your design
+ * and much more!
+
+> Of course, most things listed above could be done without Docker and meaningless job made by me :)
+> I don't know dockering tools is useful or not...
+
+## Packages tried to dockerize
  - Synosys
    - Design Compiler (DC)
    - IC Compiler (ICC)
-   - VCS (RTL Simulator)
-   - HSPICE
+   - VCS (RTL Simulator) (N-2017; w/ Ubuntu 16.04)
+   - HSPICE (N-2017; J-2014 failed to make it work [#6][i6])
  - Cadence
    - Incisive (NCSim)
    - Virtuoso (IC)
 
 ## CAVEAT
+  - You should NOT upload an image containing commercial tool to PUBLIC docker registry! ;-)
+
+  - Intermediate images are not removed automatically, you have to remove by yourself for now. (see below)
+
   - X11 forwarding with host was not prepared. In other words, with this image you cannot open GUI windows out-of-the-box. (See [#3][i3])
-  - Did not test uploading to "private" docker registry.
-    - (you should not upload image containing commeiclal tool to public docker registry, of course ;-) )
-  - Intermediate image does not removed automatically, you have to remove by yourself for now. (see below)
-  - How can we run docker container with unpriviledged permission?
-    - Currently, there is nothing to drop root priviledge in `Dockerfile`s
-    - [Singularity](https://www.sylabs.io) could be a solution.
+
+  - How can we run docker container with unpriviledged permission? In other words, can this image be used similar to desktop applications?
+    - Currently, I did not prepare to drop root priviledge in `Dockerfile`s
+    - [Singularity](https://www.sylabs.io) could be a solution [#5][i5]
 
 ## Prerequisites
   - Docker 17.05+ (this script uses multi-stage build feature)
@@ -28,13 +40,15 @@ I don't know which possibilities can bear from dockerizing EDA tools, but here i
 
 ## Generating an image
   
-  - First, clone this repository to your workstation.
+  - Clone this repository to your workstation.
   - Copy (or bind mount) installer and installation package to the subdirectory
      - Refer to shell scripts for bind-mounting installation files from other path. Bind mount was used only for avoiding copy installation package to working path
   - modify dockerfile to match with your tool version, your requirements, etc.
   - Execute below command to create an image.  
-`$ sudo docker build -t <image_name>:<version> -f <Dockerfile> .`  
-`e.g. $ sudo docker build -t synopsys_dc:X-2020.4 -f Dockerfile_Synopsys_DC .`
+```bash
+$ sudo docker build -t <image_name>:<version> -f <Dockerfile> .
+e.g. $ sudo docker build -t synopsys_dc:X-2020.4 -f Dockerfile_Synopsys_DC .
+```
   - You can manually remove intermediate images created during building an image.
 ```bash
 $ sudo docker images    # find a tag of the intermediate image
@@ -62,7 +76,6 @@ $ sudo apt install csh libxss1 libsm6 libice6 libxft2 libjpeg62 libtiff5 libmng2
 $ sudo ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.5 /usr/lib/x86_64-linux-gnu/libtiff.so.3
 $ sudo ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1
 ```
- - `HSPICE` requires `libxml2` also!
 
  - Ubuntu 18.04 requires additional treatments, because `libpng12-0` package was removed from that version
    - Manually download and install `libpng12-0` package, or add source of older releases and install package from that source like below:
@@ -71,6 +84,25 @@ $ sudo 'echo "deb http://security.ubuntu.com/ubuntu xenial-security main" >> /et
 $ sudo apt update
 $ sudo apt install -y -t xenial libpng12-0
 ```
+#### HSPICE
+ - Requires `libxml2` also
+
+#### VCS
+ - Additionally required packages:
+   - `dc`
+   - gcc/g++ compiler
+     - In Debian/Ubuntu, you can do that by simply installing `build-essential` package (with unnecessary more packages ;-( )
+
+ - Define below environment variables
+```bash
+$ export VCS_HOME=<path_to_vcs>
+$ export VCS_TARGET_ARCH="amd64"
+```
+
+ - Set alias for `vcs` command. Below example is for Bash shell:    
+`$ alias vcs="vcs -full64"`
+   - Unfortunately, `VCS_TARGET_ARCH` was not fully effective
+   - This was not implemented in VCS `Dockerfile` for now    
 
 ### Cadence
 
@@ -81,11 +113,17 @@ $ sudo dpkg --add-architecture i386
 $ sudo apt libxtst6:i386 libxext6:i386 libxi6:i386 ksh csh \
 ```
 
- - define below envvar to execute 64-bit binary  
+ - Define below environment variable to execute 64-bit binary  
 `$ export CDS_AUTO_64BIT=ALL`
 
- - (Virtuoso) define below envvar regarding inside `<path/to/virtuoso>/share/oa/lib/`  
+ - (Virtuoso) Define below environment variable regarding inside `<path/to/virtuoso>/share/oa/lib/`  
 `$ export OA_UNSUPPORTED_PLAT "linux_rhel50_gcc48x"`
 
+### Mentor
+
+ - Have to mimic OS vendor and version as Redhat 7.0
+   - Refer to the [Patch file](https://github.com/limerainne/Dockerize-EDA/blob/master/patches/mentor_calibre_os_as_rh7.patch)
 
 [i3]: https://github.com/limerainne/Dockerize-EDA/issues/3
+[i5]: https://github.com/limerainne/Dockerize-EDA/issues/5
+[i6]: https://github.com/limerainne/Dockerize-EDA/issues/6
