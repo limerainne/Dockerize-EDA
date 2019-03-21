@@ -84,8 +84,12 @@ $ sudo 'echo "deb http://security.ubuntu.com/ubuntu xenial-security main" >> /et
 $ sudo apt update
 $ sudo apt install -y -t xenial libpng12-0
 ```
+
 #### HSPICE
  - Requires `libxml2` also
+ 
+##### J-2014
+ - Requires `netbase` package, which has `/etc/protocols` file
 
 #### VCS
  - Additionally required packages:
