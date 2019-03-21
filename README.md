@@ -53,6 +53,10 @@ e.g. $ sudo docker build -t synopsys_dc:X-2020.4 -f Dockerfile_Synopsys_DC .
 ```bash
 $ sudo docker images    # find a tag of the intermediate image
 $ sudo docker rmi <image_tag_you_want_to_remove>
+
+or
+
+$ docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
 ```
 
 ## Launch a container
