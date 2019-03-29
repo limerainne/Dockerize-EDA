@@ -9,7 +9,7 @@ With docker images made from these `Dockerfiles`, we could do:
  * [Continuous Integration (CI)](https://en.wikipedia.org/wiki/Continuous_integration) for your design
  * and much more!
 
-> Of course, most things listed above could be done without Docker and meaningless job made by me :)
+> Of course, most things listed above could be done without Docker and meaningless job made by me :)    
 > I don't know dockering tools is useful or not...
 
 ## Packages tried to dockerize
@@ -17,7 +17,7 @@ With docker images made from these `Dockerfiles`, we could do:
    - Design Compiler (DC)
    - IC Compiler (ICC)
    - VCS (RTL Simulator) (N-2017; w/ Ubuntu 16.04)
-   - HSPICE (N-2017; J-2014 failed to make it work [#6][i6])
+   - HSPICE (N-2017; for J-2014 `netbase` package is also required ([#6][i6]))
  - Cadence
    - Incisive (NCSim)
    - Virtuoso (IC)
@@ -80,6 +80,11 @@ $ sudo apt install csh libxss1 libsm6 libice6 libxft2 libjpeg62 libtiff5 libmng2
 $ sudo ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.5 /usr/lib/x86_64-linux-gnu/libtiff.so.3
 $ sudo ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1
 ```
+
+ - Change default shell from `dash` to `bash` for avoiding shell script compatibility issues
+ ```bash
+ $ sudo update-alternatives --install /bin/sh sh /bin/bash 20
+ ```
 
  - Ubuntu 18.04 requires additional treatments, because `libpng12-0` package was removed from that version
    - Manually download and install `libpng12-0` package, or add source of older releases and install package from that source like below:
